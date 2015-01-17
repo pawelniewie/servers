@@ -1,0 +1,14 @@
+---
+  - hosts: proxy
+
+    vars:
+      name: pawelniewiadomski.com
+      listen: "*:80"
+      server_name: pawelniewiadomski.com
+      redirect_url: http://pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com
+
+    tasks:
+      - include: tasks/setup-vhost-redirect.yml
+
+    handlers:
+      - include: handlers/handlers.yml
