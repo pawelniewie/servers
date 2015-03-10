@@ -1,0 +1,14 @@
+---
+  - hosts: proxy
+
+    vars:
+      name: wineisfine.pl
+      listen: "*:80"
+      server_name: wineisfine.pl
+      redirect_url: http://wineisfine.pl.s3-website.eu-central-1.amazonaws.com
+
+    tasks:
+      - include: tasks/setup-vhost-redirect.yml
+
+    handlers:
+      - include: handlers/handlers.yml

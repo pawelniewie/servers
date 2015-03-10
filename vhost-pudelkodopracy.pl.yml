@@ -1,0 +1,14 @@
+---
+  - hosts: proxy
+
+    vars:
+      name: pudelkodopracy.pl
+      listen: "*:80"
+      server_name: pudelkodopracy.pl
+      redirect_url: http://pudelkodopracy.pl.s3-website.eu-central-1.amazonaws.com
+
+    tasks:
+      - include: tasks/setup-vhost-redirect.yml
+
+    handlers:
+      - include: handlers/handlers.yml

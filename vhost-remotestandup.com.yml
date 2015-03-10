@@ -1,0 +1,14 @@
+---
+  - hosts: proxy
+
+    vars:
+      name: remotestandup.com
+      listen: "*:80"
+      server_name: remotestandup.com
+      redirect_url: http://remotestandup.com.s3-website-us-west-2.amazonaws.com
+
+    tasks:
+      - include: tasks/setup-vhost-redirect.yml
+
+    handlers:
+      - include: handlers/handlers.yml
