@@ -3,10 +3,8 @@
 
     vars:
       name: pawelniewiadomski.pl
-      listen: "*:80"
-      server_name: pawelniewiadomski.pl
-      redirect_url: http://pawelniewiadomski.pl.s3-website-us-east-1.amazonaws.com
-      
+      redirect_url: http://pawelniewiadomski.com
+
     tasks:
       - include: tasks/setup-vhost-redirect.yml
 
