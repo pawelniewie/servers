@@ -1,0 +1,13 @@
+---
+  - hosts: proxy
+
+    vars:
+      name: ministerstwomilosci.pl
+      service_ip: ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com
+      service_port: 80
+
+    tasks:
+      - include: tasks/setup-vhost-proxy.yml
+
+    handlers:
+      - include: handlers/handlers.yml
