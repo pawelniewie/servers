@@ -1,7 +1,5 @@
 ---
   - hosts: all
-    sudo: yes
-    gather_facts: no
 
     tasks:
       - include: tasks/setup-nginx.yml
