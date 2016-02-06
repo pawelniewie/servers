@@ -5,6 +5,12 @@
 
     tasks:
       - include: tasks/setup-nginx.yml
+        vars:
+          delete_default_vhost: true
+          user: www-data
+          worker_processes: "{{ ansible_processor_count }}"
+          pid: /var/run/nginx.pid
+          worker_connections: 768
       
       - include: tasks/setup-vhost-proxy.yml
         vars:
