@@ -1,25 +1,27 @@
 ---
-  - hosts: proxy
+  - hosts: all
+    sudo: yes
+    gather_facts: no
 
     tasks:
       - include: tasks/setup-nginx.yml
       
       - include: tasks/setup-vhost-proxy.yml
-      	vars:
-	      	name: ministerstwomilosci.pl
-	      	service_ip: ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com
-	      	service_port: 80
+        vars:
+          name: ministerstwomilosci.pl
+          service_ip: ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com
+          service_port: 80
 
       - include: tasks/setup-vhost-proxy.yml
-      	vars:
-	      	name: pawelniewiadomski.com
-	      	service_ip: pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com
-	      	service_port: 80
+        vars:
+          name: pawelniewiadomski.com
+          service_ip: pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com
+          service_port: 80
 
       - include: tasks/setup-vhost-redirect.yml
         vars:
-      		name: pawelniewiadomski.pl
-      		redirect_url: http://pawelniewiadomski.com
+          name: pawelniewiadomski.pl
+          redirect_url: http://pawelniewiadomski.com
 
     handlers:
       - include: handlers/handlers.yml
