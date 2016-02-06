@@ -2,6 +2,8 @@
   - hosts: proxy
 
     tasks:
+      - include: tasks/setup-nginx.yml
+      
       - include: tasks/setup-vhost-proxy.yml
       	vars:
 	      	name: ministerstwomilosci.pl
