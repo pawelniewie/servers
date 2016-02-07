@@ -1,9 +1,16 @@
 ---
   - hosts: all
+    become: true
 
     tasks:
+      - user: name=wercker comment="Wercker" group=www-data
+
+      - name: Add Wercker key
+        authorized_key: user=wercker key="{{ lookup('file', './files/wercker.pub') }}"
+
+      - file: path=/var/www state=directory mode=0755
+
       - include: tasks/setup-nginx.yml
-        become: true
         vars:
           delete_default_vhost: true
           user: www-data
@@ -12,27 +19,23 @@
           worker_connections: 768
       
       - include: tasks/setup-vhost-proxy.yml
-        become: true
         vars:
           name: ministerstwomilosci.pl
           service_ip: ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com
           service_port: 80
 
       - include: tasks/setup-vhost-proxy.yml
-        become: true
         vars:
           name: pawelniewiadomski.com
           service_ip: pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com
           service_port: 80
 
       - include: tasks/setup-vhost-redirect.yml
-        become: true
         vars:
           name: pawelniewiadomski.pl
           redirect_url: http://pawelniewiadomski.com
 
       - include: tasks/setup-single-page-app.yml
-        become: true
         vars:
           name: usezen.it
 

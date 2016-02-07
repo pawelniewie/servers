@@ -8,3 +8,5 @@
     action: file src=/etc/nginx/sites-available/{{ name }} dest=/etc/nginx/sites-enabled/{{ name }} state=link
     notify:
       - restart nginx
+
+  - file: path=/var/www/{{name}} state=directory mode=0775 owner=www-data group=www-data
