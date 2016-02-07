@@ -31,5 +31,10 @@
           name: pawelniewiadomski.pl
           redirect_url: http://pawelniewiadomski.com
 
+      - include: tasks/setup-single-page-app.yml
+        become: true
+        vars:
+          name: usezen.it
+
     handlers:
       - include: handlers/handlers.yml
