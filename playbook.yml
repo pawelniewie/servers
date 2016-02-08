@@ -1,5 +1,5 @@
 ---
-  - hosts: all
+  - hosts: proxy
     become: true
 
     tasks:
