@@ -36,12 +36,11 @@
           redirect_url: http://pawelniewiadomski.com
 
       - include: tasks/setup-single-page-app.yml
-        vars:
-          name: usezen.it
-          
-      - include: tasks/setup-single-page-app.yml
-        vars:
-          name: czytojest.paleomenu.pl
+        vars: 
+          name: "{{ item }}"
+        with_items:
+          - usezen.it
+          - czytojest.paleomenu.pl
           
     handlers:
       - include: handlers/handlers.yml
