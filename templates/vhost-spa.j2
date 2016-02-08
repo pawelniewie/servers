@@ -4,6 +4,7 @@ server {
   root /var/www/{{ name }};
 
   access_log /var/log/nginx/{{ name }}.access.log;
+  error_log /var/log/nginx/{{ name }}.error.log;
 
   error_page 400 404 500 502 503 504 /50x.html;
   location  /50x.html {
