@@ -7,7 +7,10 @@
         user: name=wercker comment="Wercker" group=www-data
 
       - name: Add SSH key to wercker
-        authorized_key: user=wercker key="{{ lookup('file', './files/wercker.pub') }}"
+        authorized_key: user=wercker key="{{ item }}"
+        with_items:
+          - "{{ lookup('file', './files/zen.pub') }}"
+          - "{{ lookup('file', './files/paleo.pub') }}"
 
       - file: path=/var/www state=directory mode=0755
 

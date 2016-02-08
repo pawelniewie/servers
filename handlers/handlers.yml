@@ -1,4 +1,4 @@
 ---
   - name: restart nginx
-    action: service name=nginx pattern=/etc/init.d/nginx state=restarted
+    service: name=nginx state=restarted
     become: true
