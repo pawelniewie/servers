@@ -38,6 +38,10 @@
       - include: tasks/setup-single-page-app.yml
         vars:
           name: usezen.it
-
+          
+      - include: tasks/setup-single-page-app.yml
+        vars:
+          name: czytojest.paleomenu.pl
+          
     handlers:
       - include: handlers/handlers.yml
