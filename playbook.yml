@@ -3,9 +3,10 @@
     become: true
 
     tasks:
-      - user: name=wercker comment="Wercker" group=www-data
+      - name: Create wercker user
+        user: name=wercker comment="Wercker" group=www-data
 
-      - name: Add Wercker key
+      - name: Add SSH key to wercker
         authorized_key: user=wercker key="{{ lookup('file', './files/wercker.pub') }}"
 
       - file: path=/var/www state=directory mode=0755
@@ -20,15 +21,12 @@
       
       - include: tasks/setup-vhost-proxy.yml
         vars:
-          name: ministerstwomilosci.pl
-          service_ip: ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com
+          name: "{{ item.name }}"
+          service_ip: "{{ item.ip }}"
           service_port: 80
-
-      - include: tasks/setup-vhost-proxy.yml
-        vars:
-          name: pawelniewiadomski.com
-          service_ip: pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com
-          service_port: 80
+        with_items:
+          - { name: 'ministerstwomilosci.pl', ip: 'ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com' }
+          - { name: 'pawelniewiadomski.com', ip: 'ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com' }
 
       - include: tasks/setup-vhost-redirect.yml
         vars:
