@@ -2,3 +2,7 @@
   - name: restart nginx
     service: name=nginx state=restarted
     become: true
+
+ - name: restart postgrest
+    runit: name=postgrest enabled=true state=up timeout=9 action=restart
+    when: not postgrest_status.restarted
