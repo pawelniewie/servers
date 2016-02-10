@@ -1,0 +1,14 @@
+files:
+  - /var/log/postgrest/current
+  - /var/log/postgresql/*.log
+exclude_files:
+  - old
+  - 200\d
+exclude_patterns:
+  - exclude this
+  - \d+ things
+destination:
+  host: {{papertrail_host}}
+  port: {{papertrail_port}}
+  protocol: tls
+new_file_check_interval: "10" # Check every 10 seconds

@@ -51,7 +51,7 @@
 
     roles:
      - gotansible.runit
-     - { role: azavea.papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
+     - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
 
     tasks:
       - name: ensure apt cache is up to date
