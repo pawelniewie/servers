@@ -1,4 +1,8 @@
 ---
+  - hosts: all
+    roles:
+    - { role: kamaln7.swapfile, swapfile_size: 4GB }
+
   - hosts: proxy
     become: true
 
@@ -11,6 +15,7 @@
         with_items:
           - "{{ lookup('file', './files/zen.pub') }}"
           - "{{ lookup('file', './files/paleo.pub') }}"
+          - "{{ lookup('file', './files/pawel.pub') }}"
 
       - file: path=/var/www state=directory mode=0755
 
@@ -54,16 +59,24 @@
      - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
 
     tasks:
+      - name: install postgresql apt key
+        apt_key: url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
+
+      - name: add postgresql apt repo
+        apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main 9.5' state=present
+      
       - name: ensure apt cache is up to date
         apt: update_cache=yes
+      
       - name: ensure packages are installed
         apt: name={{item}}
         with_items:
-            - postgresql
+            - postgresql-9.5
             - postgresql-contrib
             - libpq-dev
             - python-psycopg2
             - xz-utils
+            - git
 
       - stat: path=/usr/local/bin/postgrest
         register: postgrest_file
@@ -119,3 +132,16 @@
       - name: postgrest runit
         runit: name=postgrest enabled=true state=up timeout=9 user='root' command='postgrest postgres://{{authenticator_name}}:{{authenticator_pass}}@localhost:5432/zen --anonymous zen -p 3001'
         register: postgrest_status
+
+      - name: Create wercker user
+        user: name=wercker comment="Wercker" group=www-data
+
+      - name: Add SSH key to wercker
+        authorized_key: user=wercker key="{{ item }}"
+        with_items:
+          - "{{ lookup('file', './files/zen.pub') }}"
+          - "{{ lookup('file', './files/paleo.pub') }}"
+          - "{{ lookup('file', './files/pawel.pub') }}"
+
+      - file: path=/var/www state=directory mode=0755
+
