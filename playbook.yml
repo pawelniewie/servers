@@ -29,7 +29,7 @@
           service_port: 80
         with_items:
           - { name: 'ministerstwomilosci.pl', ip: 'ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com' }
-          - { name: 'pawelniewiadomski.com', ip: 'ministerstwomilosci.pl.s3-website.eu-central-1.amazonaws.com' }
+          - { name: 'pawelniewiadomski.com', ip: 'pawelniewiadomski.com.s3-website-us-west-2.amazonaws.com' }
 
       - include: tasks/setup-vhost-redirect.yml
         vars:
@@ -45,3 +45,37 @@
           
     handlers:
       - include: handlers/handlers.yml
+
+  - hosts: database
+    become: true
+
+    tasks:
+      - name: ensure apt cache is up to date
+        apt: update_cache=yes
+      - name: ensure packages are installed
+        apt: name={{item}}
+        with_items:
+            - postgresql
+            - postgresql-contrib
+            - libpq-dev
+            - python-psycopg2
+
+  - hosts: database
+    become: yes
+    become_user: postgres
+    gather_facts: no
+
+    vars:
+      dbname: "{{ db_name }}"
+      dbuser: "{{ db_user }}"
+      dbpassword: "{{ db_pass }}"
+
+    tasks:
+    - name: ensure database is created
+      postgresql_db: name={{dbname}}
+
+    - name: ensure user has access to database
+      postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+
+    - name: ensure user does not have unnecessary privilege
+      postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB

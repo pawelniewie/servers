@@ -5,9 +5,10 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "ansible" do |ansible|
         ansible.groups = {
-          'proxy' => ['default']
+          'database' => ['default']
         }
 
         ansible.playbook = "playbook.yml"
+        ansible.ask_vault_pass = true
     end
 end
