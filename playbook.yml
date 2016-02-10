@@ -50,7 +50,8 @@
     become: true
 
     roles:
-     - { role: gotansible.runit }
+     - gotansible.runit
+     - { role: azavea.papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
 
     tasks:
       - name: ensure apt cache is up to date
@@ -63,6 +64,22 @@
             - libpq-dev
             - python-psycopg2
             - xz-utils
+
+      - stat: path=/usr/local/bin/postgrest
+        register: postgrest_file
+
+      - name: download postgrest
+        get_url: url=https://github.com/begriffs/postgrest/releases/download/v{{postgrest_version}}/postgrest-{{postgrest_version}}-ubuntu.tar.xz dest=/tmp mode=0400
+        when: not postgrest_file.stat.exists
+
+      - name: extract postgrest
+        unarchive: src="/tmp/postgrest-{{postgrest_version}}-ubuntu.tar.xz"
+             dest=/usr/local/bin
+             copy=no
+             owner=root
+             group=root
+             creates=/usr/local/bin/postgrest
+        when: not postgrest_file.stat.exists
 
   - hosts: database
     become: yes
@@ -84,15 +101,21 @@
     - name: ensure user does not have unnecessary privilege
       postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
 
+    - name: create authenticator role
+      postgresql_user: db={{dbname}} name={{authenticator_name}} password={{authenticator_pass}} role_attr_flags=LOGIN
+
     - name: add database extension
       postgresql_ext: name={{ item }} db={{ dbname }}
       with_items:
         - uuid-ossp
 
-    - name: download postgrest
-      become_user: root
-      get_url: url=https://github.com/begriffs/postgrest/releases/download/v{{postgrest_version}}/postgrest-{{postgrest_version}}-ubuntu.tar.xz dest=/tmp mode=0400
+  - hosts: database
+    become: true
 
-    - name: extract postgrest
-      become_user: root
-      shell: cd /usr/local/bin && xzcat /tmp/postgrest-{{postgrest_version}}-ubuntu.tar.xz | tar -xf -
+    tasks:
+      - name: create log dir for postgrest
+        file: state=directory path=/var/log/postgrest
+
+      - name: postgrest runit
+        runit: name=postgrest enabled=true state=up timeout=9 user='root' command='postgrest postgres://{{authenticator_name}}:{{authenticator_pass}}@localhost:5432/zen --anonymous zen -p 3001'
+        register: postgrest_status
