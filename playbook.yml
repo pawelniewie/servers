@@ -49,6 +49,9 @@
   - hosts: database
     become: true
 
+    roles:
+     - { role: gotansible.runit }
+
     tasks:
       - name: ensure apt cache is up to date
         apt: update_cache=yes
