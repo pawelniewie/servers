@@ -59,6 +59,7 @@
             - postgresql-contrib
             - libpq-dev
             - python-psycopg2
+            - xz-utils
 
   - hosts: database
     become: yes
@@ -79,3 +80,16 @@
 
     - name: ensure user does not have unnecessary privilege
       postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+    - name: add database extension
+      postgresql_ext: name={{ item }} db={{ dbname }}
+      with_items:
+        - uuid-ossp
+
+    - name: download postgrest
+      become_user: root
+      get_url: url=https://github.com/begriffs/postgrest/releases/download/v{{postgrest_version}}/postgrest-{{postgrest_version}}-ubuntu.tar.xz dest=/tmp mode=0400
+
+    - name: extract postgrest
+      become_user: root
+      shell: cd /usr/local/bin && xzcat /tmp/postgrest-{{postgrest_version}}-ubuntu.tar.xz | tar -xf -
