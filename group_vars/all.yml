@@ -1,2 +1,5 @@
 ---
 postgrest_version: 0.3.0.3
+deployer_user: wercker
+www_group: www-data
+www_user: www-data

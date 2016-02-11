@@ -1,5 +1,6 @@
 ---
   - hosts: all
+    become: true
     roles:
     - { role: kamaln7.swapfile, swapfile_size: 4GB }
 
@@ -7,11 +8,11 @@
     become: true
 
     tasks:
-      - name: Create wercker user
-        user: name=wercker comment="Wercker" group=www-data
+      - name: Create deployer user
+        user: name={{deployer_user}} comment="Deployer" group={{www_group}}
 
-      - name: Add SSH key to wercker
-        authorized_key: user=wercker key="{{ item }}"
+      - name: Add SSH key to deployer
+        authorized_key: user={{deployer_user}} key="{{ item }}"
         with_items:
           - "{{ lookup('file', './files/zen.pub') }}"
           - "{{ lookup('file', './files/paleo.pub') }}"
@@ -22,7 +23,7 @@
       - include: tasks/setup-nginx.yml
         vars:
           delete_default_vhost: true
-          user: www-data
+          user: "{{ www_user }}"
           worker_processes: "{{ ansible_processor_count }}"
           pid: /var/run/nginx.pid
           worker_connections: 768
@@ -133,15 +134,19 @@
         runit: name=postgrest enabled=true state=up timeout=9 user='root' command='postgrest postgres://{{authenticator_name}}:{{authenticator_pass}}@localhost:5432/zen --anonymous zen -p 3001'
         register: postgrest_status
 
-      - name: Create wercker user
-        user: name=wercker comment="Wercker" group=www-data
+      - name: Create deployer user
+        user: name={{deployer_user}} comment="Deployer" group={{www_group}}
 
-      - name: Add SSH key to wercker
-        authorized_key: user=wercker key="{{ item }}"
+      - name: Add SSH key to deployer
+        authorized_key: user={{deployer_user}} key="{{ item }}"
         with_items:
           - "{{ lookup('file', './files/zen.pub') }}"
           - "{{ lookup('file', './files/paleo.pub') }}"
           - "{{ lookup('file', './files/pawel.pub') }}"
 
       - file: path=/var/www state=directory mode=0755
+
+      - file: path=/var/www/{{item}} state=directory mode=0755 owner={{deployer_user}} group={{www_group}}
+        with_items:
+          - usezen.it
 
