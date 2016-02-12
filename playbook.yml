@@ -58,8 +58,12 @@
     roles:
      - gotansible.runit
      - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
+     - { role: zzet.rbenv, version: v1.0.0, ruby_version: 2.3.0 }
 
     tasks:
+      - name: install bundler system wide
+        gem: name=bundler state=present executable=/usr/local/rbenv/shims/gem user_install=false
+
       - name: install postgresql apt key
         apt_key: url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
 
