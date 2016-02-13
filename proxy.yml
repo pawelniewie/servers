@@ -2,6 +2,7 @@
   - hosts: proxy
     become: true
     roles:
+      - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
       - role: letsencrypt
         letsencrypt_authenticator: standalone
         letsencrypt_email: pawelniewiadomski@me.com
