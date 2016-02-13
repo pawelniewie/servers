@@ -1,0 +1,8 @@
+---
+  - name: "add nginx {{ name }} proxy"
+    action: template src=templates/vhost-proxy-ssl.j2 dest=/etc/nginx/sites-available/{{ name }}
+    notify: restart nginx
+
+  - name: "link nginx {{ name }} proxy in sites-enabled"
+    action: file src=/etc/nginx/sites-available/{{ name }} dest=/etc/nginx/sites-enabled/{{ name }} state=link
+    notify: restart nginx

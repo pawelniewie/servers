@@ -131,3 +131,19 @@
               mode=0600
         with_items:
           - usezen.it
+
+      - include: tasks/setup-nginx.yml
+        vars:
+          delete_default_vhost: true
+          user: "{{ www_user }}"
+          worker_processes: "{{ ansible_processor_count }}"
+          pid: /var/run/nginx.pid
+          worker_connections: 768
+
+      - include: tasks/setup-vhost-proxy-ssl.yml
+        vars:
+          name: "{{ item.name }}"
+          service_ip: "{{ item.ip }}"
+          service_port: "{{ item.port }}"
+        with_items:
+          - { name: 'database.usezen.it', ip: '127.0.0.1', port: '3001' }
