@@ -11,7 +11,6 @@ server {
 
   if ($scheme = http) {
     return 301 https://$host$request_uri;
-    rewrite ^ https://$host$request_uri? permanent;
   }
 
   access_log /var/log/nginx/{{ name }}.access.log;
