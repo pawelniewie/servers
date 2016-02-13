@@ -3,6 +3,7 @@
     become: true
     roles:
       - role: letsencrypt
+        letsencrypt_authenticator: standalone
         letsencrypt_email: pawelniewiadomski@me.com
         letsencrypt_cert_domains:
           - usezen.it
