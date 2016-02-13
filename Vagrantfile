@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
           'database' => ['default']
         }
 
-        ansible.playbook = "vagrant.yml"
+        ansible.playbook = "playbook.yml"
         ansible.ask_vault_pass = true
     end
 end

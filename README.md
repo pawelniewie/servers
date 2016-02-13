@@ -1,49 +1,29 @@
-nginx
+Ansible configuration
 =====
 
-## nginx
+Ansible configuration for single page app and accompanying backend server.
 
-This playbook install the nginx package.
+To install ansible dependencies:
 
-### Vars
+`ansible-galaxy install -r requirements.yml`
 
-* **delete_default_vhost**: Delete or not default vhost
-    * Type: Boolean
-    * Default: false
-* **user**:
-    * Type: String
-    * Default: www-data
-* **worker_processes**:
-    * Type: Integer
-    * Default: $ansible_processor_count
-* **pid**:
-    * Type: String
-    * Default: /var/run/nginx.pid
-* **worker_connections**:
-    * Type: Integer
-    * Default: 768
+To test out this playbook you can use vagrant:
 
-### Usage
+* change `Vangrantfile` and specify which role you want to deploy
+* `vagrant up` will start the box and provision it
+* `vagrant up` will provision again
 
-``` bash
-$ ansible-playbook nginx.yml -uroot
-```
+To install it on servers use:
 
-## vhost-redirect
+`ansible-playbook -i hosts playbook.yml --vault-password-file=~/.vault_pass.txt`
 
-This playbook add a simple redirect vhost for nginx.
+This playbook show cases:
 
-### Vars
-
-* **name**: The vhost name
-    * Type: String
-    * Default: redirect_$server_name
-* **listen**:
-    * Type: String
-    * Default: *:80
-* **server_name**: The server domain name
-    * Type: String
-    * Default: example.org
-* **redirect_url**: The redirect URL
-    * Type: String
-    * Default: http://www.$server_name
+* setting up nginx server
+* setting up account for deployments
+* remote syslog to papertrail
+* letsencrypt certificates generation
+* swap file creation
+* runit configuration
+* rbenv configuration
+* using encrypted vaults
