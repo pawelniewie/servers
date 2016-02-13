@@ -1,6 +1,11 @@
 ---
   - hosts: proxy
     become: true
+    roles:
+      - role: letsencrypt
+        letsencrypt_email: pawelniewiadomski@me.com
+        letsencrypt_cert_domains:
+          - usezen.it
 
     tasks:
       - name: Create deployer user

@@ -3,9 +3,14 @@
     become: true
 
     roles:
-     - gotansible.runit
-     - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
-     - { role: zzet.rbenv, version: v1.0.0, ruby_version: 2.3.0 }
+      - gotansible.runit
+      - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
+      - { role: zzet.rbenv, version: v1.0.0, ruby_version: 2.3.0 }
+      - role: letsencrypt
+        letsencrypt_authenticator: standalone
+        letsencrypt_email: pawelniewiadomski@me.com
+        letsencrypt_cert_domains:
+          - database.usezen.it
 
     handlers:
       - include: handlers/handlers.yml
