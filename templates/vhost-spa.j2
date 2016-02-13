@@ -1,15 +1,36 @@
 server {
   listen 80;
+  listen 443 ssl;
+
   server_name {{ name }};
   root /var/www/{{ name }};
+
+  expires max;
+
+  server_tokens off;
+
+  if ($scheme = http) {
+    return 301 https://$host$request_uri;
+    rewrite ^ https://$host$request_uri? permanent;
+  }
 
   access_log /var/log/nginx/{{ name }}.access.log;
   error_log /var/log/nginx/{{ name }}.error.log;
 
+  ssl_certificate      /etc/letsencrypt/live/{{ name }}/fullchain.pem;
+  ssl_certificate_key  /etc/letsencrypt/live/{{ name }}/privkey.pem;
+
+  ssl_session_cache   shared:SSL:10m;
+  ssl_session_timeout  5m;
+
+  ssl_protocols  SSLv2 SSLv3 TLSv1;
+  ssl_ciphers  HIGH:!aNULL:!MD5;
+  ssl_prefer_server_ciphers   on;
+
   error_page 400 404 500 502 503 504 /50x.html;
   location  /50x.html {
-	internal;
-	root /usr/share/nginx/html;
+	 internal;
+	 root /usr/share/nginx/html;
   }
 
   location / {
