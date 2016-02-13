@@ -1,0 +1,7 @@
+- src: azavea.papertrail
+- src: gotansible.runit
+- src: kamaln7.swapfile
+- src: zzet.rbenv
+- src: https://github.com/thefinn93/ansible-letsencrypt
+  version: master
+  name: letsencrypt
