@@ -1,0 +1,5 @@
+---
+  - hosts: all
+    become: true
+    roles:
+    - { role: kamaln7.swapfile, swapfile_size: 4GB }

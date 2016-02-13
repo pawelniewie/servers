@@ -1,0 +1,120 @@
+---
+  - hosts: database
+    become: true
+
+    roles:
+     - gotansible.runit
+     - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
+     - { role: zzet.rbenv, version: v1.0.0, ruby_version: 2.3.0 }
+
+    handlers:
+      - include: handlers/handlers.yml
+      
+    tasks:
+      - name: install bundler system wide
+        gem: name=bundler state=present executable=/usr/local/rbenv/shims/gem user_install=false
+
+      - name: install postgresql apt key
+        apt_key: url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
+
+      - name: add postgresql apt repo
+        apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main 9.5' state=present
+      
+      - name: ensure apt cache is up to date
+        apt: update_cache=yes
+      
+      - name: ensure packages are installed
+        apt: name={{item}}
+        with_items:
+            - postgresql-9.5
+            - postgresql-contrib
+            - libpq-dev
+            - python-psycopg2
+            - xz-utils
+            - git
+
+      - stat: path=/usr/local/bin/postgrest
+        register: postgrest_file
+
+      - name: download postgrest
+        get_url: url=https://github.com/begriffs/postgrest/releases/download/v{{postgrest_version}}/postgrest-{{postgrest_version}}-ubuntu.tar.xz dest=/tmp mode=0400
+        when: not postgrest_file.stat.exists
+
+      - name: extract postgrest
+        unarchive: src="/tmp/postgrest-{{postgrest_version}}-ubuntu.tar.xz"
+             dest=/usr/local/bin
+             copy=no
+             owner=root
+             group=root
+             creates=/usr/local/bin/postgrest
+        when: not postgrest_file.stat.exists
+
+  - hosts: database
+    become: yes
+    become_user: postgres
+    gather_facts: no
+
+    vars:
+      dbname: "{{ db_name }}"
+      dbuser: "{{ db_user }}"
+      dbpassword: "{{ db_pass }}"
+
+    tasks:
+    - name: ensure database is created
+      postgresql_db: name={{dbname}}
+
+    - name: ensure user has access to database
+      postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+
+    - name: ensure user does not have unnecessary privilege
+      postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+    - name: create authenticator role
+      postgresql_user: db={{dbname}} name={{authenticator_name}} password={{authenticator_pass}} role_attr_flags=LOGIN
+
+    - name: add database extension
+      postgresql_ext: name={{ item }} db={{ dbname }}
+      with_items:
+        - uuid-ossp
+
+  - hosts: database
+    become: true
+
+    tasks:
+      - name: create log dir for postgrest
+        file: state=directory path=/var/log/postgrest
+
+      - name: postgrest runit
+        runit: name=postgrest enabled=true state=up timeout=9 user='root' command='postgrest postgres://{{authenticator_name}}:{{authenticator_pass}}@localhost:5432/zen --anonymous zen -p 3001'
+        register: postgrest_status
+
+      - name: Create deployer user
+        user: name={{deployer_user}} comment="Deployer" group={{www_group}}
+
+      - name: Add SSH key to deployer
+        authorized_key: user={{deployer_user}} key="{{ item }}"
+        with_items:
+          - "{{ lookup('file', './files/zen.pub') }}"
+          - "{{ lookup('file', './files/paleo.pub') }}"
+          - "{{ lookup('file', './files/pawel.pub') }}"
+
+      - file: path=/var/www state=directory mode=0755
+
+      - file: path=/var/www/{{item}} state=directory mode=0755 owner={{deployer_user}} group={{www_group}}
+        with_items:
+          - usezen.it
+
+      - file: path=/var/www/{{item}}/configuration state=directory mode=0700 owner={{deployer_user}} group={{www_group}}
+        with_items:
+          - usezen.it
+
+      - include_vars: vars/application.yml
+
+      - name: install application.yml
+        copy: content="{{ application[item] }}"
+              dest={{ '/var/www/' + item + '/configuration/application.yml' }}
+              owner={{deployer_user}} 
+              group={{www_group}}
+              mode=0600
+        with_items:
+          - usezen.it
