@@ -1,0 +1,19 @@
+---
+  - hosts: database
+    become: yes
+    become_user: postgres
+    gather_facts: no
+
+    vars:
+      dbname: "{{ db_name }}"
+      dbuser: "{{ db_user }}"
+      dbpassword: "{{ db_pass }}"
+
+    tasks:
+    - name: grant authenticator roles
+      postgresql_privs: >
+        database="{{ db_name }}" 
+        type=group 
+        objs="{{ db_user }}" 
+        role="{{ authenticator_name }}" 
+        state=present

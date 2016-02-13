@@ -9,7 +9,7 @@
 
     handlers:
       - include: handlers/handlers.yml
-      
+
     tasks:
       - name: install bundler system wide
         gem: name=bundler state=present executable=/usr/local/rbenv/shims/gem user_install=false
@@ -71,6 +71,14 @@
 
     - name: create authenticator role
       postgresql_user: db={{dbname}} name={{authenticator_name}} password={{authenticator_pass}} role_attr_flags=LOGIN
+
+    - name: grant authenticator roles
+      postgresql_privs: >
+        database="{{ db_name }}" 
+        type=group 
+        objs="{{ db_user }}" 
+        role="{{ authenticator_name }}" 
+        state=present
 
     - name: add database extension
       postgresql_ext: name={{ item }} db={{ dbname }}
