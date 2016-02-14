@@ -2,28 +2,31 @@
   - hosts: proxy
     become: true
     roles:
-      - { role: papertrail, papertrail_host: logs.papertrailapp.com, papertrail_port: 35575, papertrail_version: 0.16, papertrail_conf: /etc/log_files.xml }
+      - role: papertrail
+        papertrail_host: logs.papertrailapp.com
+        papertrail_port: 35575
+        papertrail_version: 0.16
+        papertrail_conf: /etc/log_files.xml
+
       - role: letsencrypt
         letsencrypt_authenticator: standalone
         letsencrypt_email: pawelniewiadomski@me.com
         letsencrypt_cert_domains:
           - usezen.it
           - czytojest.paleomenu.pl
+          
+      - role: deployer
+        deployer_user: "{{ deployer_user }}"
+        deployer_group: "{{ www_group }}"
+        authorized_keys:
+          - "{{ lookup('file', './files/zen.pub') }}"
+          - "{{ lookup('file', './files/paleo.pub') }}"
+          - "{{ lookup('file', './files/pawel.pub') }}"
 
     handlers:
       - include: handlers/handlers.yml
 
     tasks:
-      - name: Create deployer user
-        user: name={{deployer_user}} comment="Deployer" group={{www_group}}
-
-      - name: Add SSH key to deployer
-        authorized_key: user={{deployer_user}} key="{{ item }}"
-        with_items:
-          - "{{ lookup('file', './files/zen.pub') }}"
-          - "{{ lookup('file', './files/paleo.pub') }}"
-          - "{{ lookup('file', './files/pawel.pub') }}"
-
       - file: path=/var/www state=directory mode=0755
 
       - include: tasks/setup-nginx.yml

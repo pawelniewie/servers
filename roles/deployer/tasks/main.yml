@@ -1,0 +1,7 @@
+---
+- name: Create deployer user
+  user: name={{ username }} comment="Deployer" group={{ group }}
+
+- name: Add SSH key to deployer
+  authorized_key: user={{ username }} key="{{ item }}"
+  with_items: "{{ authorized_keys }}"
