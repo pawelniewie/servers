@@ -24,8 +24,7 @@
         username: "{{ deployer_user }}"
         group: "{{ www_group }}"
         authorized_keys:
-          - "{{ lookup('file', './files/zen.pub') }}"
-          - "{{ lookup('file', './files/paleo.pub') }}"
+          - "{{ lookup('file', './files/zen-backend.pub') }}"
           - "{{ lookup('file', './files/pawel.pub') }}"
 
     handlers:
