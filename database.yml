@@ -9,6 +9,7 @@
         papertrail_port: 35575
         papertrail_version: 0.16
         papertrail_conf: /etc/log_files.xml
+        when: machine is not defined or machine != 'vagrant'
 
       - role: zzet.rbenv
         version: v1.0.0
@@ -19,6 +20,7 @@
         letsencrypt_email: pawelniewiadomski@me.com
         letsencrypt_cert_domains:
           - database.usezen.it
+        when: machine is not defined or machine != 'vagrant'
 
       - role: deployer
         username: "{{ deployer_user }}"
