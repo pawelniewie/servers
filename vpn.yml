@@ -1,0 +1,31 @@
+---
+  - hosts: vpn
+    become: true
+    roles:
+      - role: papertrail
+        papertrail_host: logs.papertrailapp.com
+        papertrail_port: 35575
+        papertrail_version: 0.16
+        papertrail_conf: /etc/log_files.xml
+        when: machine is not defined or machine != 'vagrant'
+
+      - role: Stouts.openvpn
+        openvpn_use_pam_users:
+          - { name: "{{vpn_username}}", password: "{{vpn_password}}" }
+        openvpn_server_options:
+          - push "dhcp-option DNS 8.8.8.8"
+          - push "redirect-gateway def1 bypass-dhcp"
+
+    tasks:
+      - name: Set ip forwarding in the sysctl file and reload if necessary
+        sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+
+      - iptables: chain=INPUT in_interface=tun+ jump=ACCEPT
+      - iptables: chain=FORWARD in_interface=tun+ jump=ACCEPT
+      - iptables: chain=FORWARD in_interface=tun+ out_interface=eth0 ctstate=RELATED,ESTABLISHED jump=ACCEPT
+      - iptables: chain=FORWARD in_interface=eth0 out_interface=tun+ ctstate=RELATED,ESTABLISHED jump=ACCEPT
+      # NAT the VPN client traffic to the internet
+      - iptables: table=nat chain=POSTROUTING source=10.8.0.0/24 out_interface=eth0 jump=MASQUERADE
+
+    handlers:
+      - include: handlers/handlers.yml

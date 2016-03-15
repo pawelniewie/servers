@@ -5,3 +5,4 @@
 - src: https://github.com/thefinn93/ansible-letsencrypt
   version: master
   name: letsencrypt
+- src: Stouts.openvpn
