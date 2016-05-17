@@ -15,11 +15,12 @@
         letsencrypt_cert_domains:
           - usezen.it
           - czytojest.paleomenu.pl
+        letsencrypt_renewal_command_args: '--renew-hook "service nginx restart"'
         when: machine is not defined or machine != 'vagrant'
           
       - role: deployer
-        deployer_user: "{{ deployer_user }}"
-        deployer_group: "{{ www_group }}"
+        username: "{{ deployer_user }}"
+        group: "{{ www_group }}"
         authorized_keys:
           - "{{ lookup('file', './files/zen.pub') }}"
           - "{{ lookup('file', './files/paleo.pub') }}"

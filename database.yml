@@ -20,6 +20,7 @@
         letsencrypt_email: pawelniewiadomski@me.com
         letsencrypt_cert_domains:
           - database.usezen.it
+        letsencrypt_renewal_command_args: '--renew-hook "service nginx restart"'
         when: machine is not defined or machine != 'vagrant'
 
       - role: deployer
