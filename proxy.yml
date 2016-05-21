@@ -15,7 +15,9 @@
         letsencrypt_cert_domains:
           - usezen.it
           - czytojest.paleomenu.pl
-        letsencrypt_renewal_command_args: '--renew-hook "service nginx restart"'
+          - pawelniewiadomski.com
+          - ministerstwomilosci.pl
+        letsencrypt_renewal_command_args: '--renew-hook "/etc/init.d/nginx restart"'
         when: machine is not defined or machine != 'vagrant'
           
       - role: deployer
@@ -40,7 +42,7 @@
           pid: /var/run/nginx.pid
           worker_connections: 768
       
-      - include: tasks/setup-vhost-proxy.yml
+      - include: tasks/setup-vhost-proxy-ssl.yml
         vars:
           name: "{{ item.name }}"
           service_ip: "{{ item.ip }}"
