@@ -6,9 +6,14 @@ server {
 	listen 80;
 	listen 443 ssl;
 
-	server_name {{ name }};
+	server_name {{ name }} www.{{ name }};
 
 	server_tokens off;
+
+	if ($host ~* www\.(.*)) {
+		set $host_without_www $1;
+		rewrite ^(.*)$ $scheme://$host_without_www$1 permanent; # $1 contains '/foo', not 'www.mydomain.com/foo'
+	}
 
 	if ($scheme = http) {
 		return 301 https://$host$request_uri;
