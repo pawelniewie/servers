@@ -1,0 +1,20 @@
+---
+- stat: path=/usr/local/bin/postgrest
+  register: postgrest_file
+  when: not force
+
+- name: download postgrest
+  get_url: url=https://github.com/begriffs/postgrest/releases/download/v{{version}}/postgrest-{{version}}-ubuntu.tar.xz dest=/tmp mode=0400
+  when: not postgrest_file.stat.exists
+
+- name: extract postgrest
+  unarchive: src="/tmp/postgrest-{{version}}-ubuntu.tar.xz"
+       dest=/usr/local/bin
+       copy=no
+       owner=root
+       group=root
+       creates=/usr/local/bin/postgrest
+  when: not postgrest_file.stat.exists
+
+- name: create log dir for postgrest
+  file: state=directory path=/var/log/postgrest

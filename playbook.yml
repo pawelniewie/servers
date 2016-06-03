@@ -6,3 +6,5 @@
   - include: database.yml
 
   - include: vpn.yml
+
+  - include: starsdb.yml
